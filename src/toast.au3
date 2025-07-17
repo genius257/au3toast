@@ -154,7 +154,7 @@ Func _Toast_Show($oToastNotification, $sAppId = @ScriptName)
 
     ;__Toast_IUnknown_Release($pToastNotifier)
 
-    $hr = $oToastNotifier.Show($toast)
+    $hr = $oToastNotifier.Show($oToastNotification)
     If @error <> 0 Then Return SetError(@error, @extended, $hr)
     If $hr <> 0 Then
         Return SetError($hr)
