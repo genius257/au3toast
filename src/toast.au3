@@ -205,30 +205,27 @@ Func _Toast_CreateToastNotificationFromXmlString($sXml)
     EndIf
 
     Local Static $UIID_IXmlDocumentIO = "{6cd0e74e-ee65-4489-9ebf-ca43e87ba637}"
-    ;Local $oXmlDocumentIO = ObjCreateInterface($oXmlDocument, $UIID_IXmlDocumentIO, $sIInspectable & "LoadXml HRESULT(ptr);LoadXmlWithSettings HRESULT(ptr;ptr);SaveToFileAsync HRESULT(ptr;ptr*);")
-    Local $x = DllCall("Ole32.dll", "long", "IIDFromString", "wstr", $UIID_IXmlDocumentIO, "ptr*", 0)
-    Local $y
-    Local $hr = __Toast_QueryInterface($oXmlDocument, $x[2], $y)
-    If $hr <> 0 Then Return SetError($hr)
-    Local $oXmlDocumentIO = ObjCreateInterface($y, $UIID_IXmlDocumentIO)
+
+    Local $pXmlDocumentIO = 0
+    __Toast_QueryInterface($pXmlDocument, $UIID_IXmlDocumentIO, $pXmlDocumentIO)
 
     If @error <> 0 Then
         Return SetError(@error, @extended, $oXmlDocumentIO)
     EndIf
 
-    Local $hr = __Toast_WindowsCreateString($sXml, $sXml)
 
-    If $hr <> 0 Then
-        Return SetError($hr)
+    Local $oXmlDocumentIO = ObjCreateInterface($pXmlDocumentIO, $UIID_IXmlDocumentIO, $sIInspectable & "LoadXml HRESULT(ptr);LoadXmlWithSettings HRESULT(ptr;ptr);SaveToFileAsync HRESULT(ptr;ptr*);")
+
+    If @error <> 0 Then
+        Return SetError(@error, @extended, $oXmlDocumentIO)
+    EndIf
+
+    __Toast_WindowsCreateString($sXml, $sXml)
+    If @error <> 0 Then
+        Return SetError(@error, @extended, $oXmlDocumentIO)
     EndIf
 
     $hr = $oXmlDocumentIO.LoadXml($sXml)
-
-    If @error <> 0 Then
-        __Toast_WindowsDeleteString($sXml)
-        Return SetError(@error, @extended, $hr)
-    EndIf
-
     If $hr <> 0 Then
         __Toast_WindowsDeleteString($sXml)
         Return SetError($hr)
@@ -236,7 +233,7 @@ Func _Toast_CreateToastNotificationFromXmlString($sXml)
 
     __Toast_WindowsDeleteString($sXml)
 
-    $hr = _Toast_CreateToastNotificationFromXmlObject($oXmlDocument)
+    $hr = _Toast_CreateToastNotificationFromXmlObject($pXmlDocument)
 
     Return SetError(@error, @extended, $hr)
 EndFunc
