@@ -31,7 +31,7 @@ EndFunc
 
 Func ToastFromXmlString()
     Local $sToast = _
-        "<toast scenario=""reminder"" activationType=""background"" launch=""action=mainContent"" duration=""short"" useButtonStyle=""True"">" & _
+        "<toast scenario=""reminder"" activationType=""background"" launch=""action=mainContent"" duration=""short"" useButtonStyle=""true"">" & _
         "  <visual>" & _
         "    <binding template=""ToastGeneric"">" & _
         "      <text>Sample toast</text>" & _
