@@ -40,13 +40,13 @@ Func ToastFromXmlString()
         '  </visual>' & _
         '  <actions>' & _
         '    <action' & _
-        '      content="Delete" ' & _
-        '      activationType="protocol" ' & _
+        '      content="Delete"' & _
+        '      activationType="protocol"' & _
         '      hint-buttonStyle="Success"' & _
         '      arguments="action=delete"/>' & _
         '    <action' & _
-        '      content="Dismiss" ' & _
-        '      activationType="system" ' & _
+        '      content="Dismiss"' & _
+        '      activationType="system"' & _
         '      hint-buttonStyle="Critical"' & _
         '      arguments="dismiss"/>' & _
         '  </actions>' & _
