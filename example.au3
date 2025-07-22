@@ -1,6 +1,7 @@
 #include "./src/toast.au3"
 #include <GuiRichEdit.au3>
 #include <GUIConstantsEx.au3>
+#include <InetConstants.au3>
 
 Opt("GuiOnEventMode", 1)
 
@@ -29,13 +30,28 @@ Func ToastFromTemplateExample()
     _Toast_Show($pToast)
 EndFunc
 
+Func DownloadImage()
+    If FileExists(@TempDir & "\e21cd29c9fb51c3a5b82f009ec33fc997d2edd1ece931e8568f37e205c445778.jpeg") Then Return
+    _GUICtrlRichEdit_AppendText($hRich, "Trying to download avatar image from gravatar..." & @CRLF)
+    Local $iBytes = InetGet("https://gravatar.com/avatar/e21cd29c9fb51c3a5b82f009ec33fc997d2edd1ece931e8568f37e205c445778", @TempDir & "\e21cd29c9fb51c3a5b82f009ec33fc997d2edd1ece931e8568f37e205c445778.jpeg", $INET_FORCEBYPASS)
+    Local $error = @error
+    If  @error <> 0 Then
+        _GUICtrlRichEdit_AppendText($hRich, "Failed to download image" & @CRLF)
+        Return
+    EndIf
+    _GUICtrlRichEdit_AppendText($hRich, "Done! "& $iBytes & " bytes downloaded" & @CRLF)
+EndFunc
+
 Func ToastFromXmlString()
+    DownloadImage()
+
     Local $sToast = _
         '<toast scenario="reminder" activationType="background" launch="action=mainContent" duration="short" useButtonStyle="true">' & _
         '  <visual>' & _
         '    <binding template="ToastGeneric">' & _
         '      <text>Sample toast</text>' & _
         '      <text>Sample content</text>' & _
+        '      <image placement="appLogoOverride" src="file://' & @TempDir & '\e21cd29c9fb51c3a5b82f009ec33fc997d2edd1ece931e8568f37e205c445778.jpeg" hint-crop="circle"/>' & _
         '    </binding>' & _
         '  </visual>' & _
         '  <actions>' & _
