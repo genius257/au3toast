@@ -31,25 +31,25 @@ EndFunc
 
 Func ToastFromXmlString()
     Local $sToast = _
-        "<toast scenario=""reminder"" activationType=""background"" launch=""action=mainContent"" duration=""short"" useButtonStyle=""true"">" & _
-        "  <visual>" & _
-        "    <binding template=""ToastGeneric"">" & _
-        "      <text>Sample toast</text>" & _
-        "      <text>Sample content</text>" & _
-        "    </binding>" & _
-        "  </visual>" & _
-        "  <actions>" & _
-        "    <action" & _
-        "      content=""Delete"" " & _
-        "      activationType=""protocol"" " & _
-        "      hint-buttonStyle=""Success""" & _
-        "      arguments=""action=delete""/>" & _
-        "    <action" & _
-        "      content=""Dismiss"" " & _
-        "      activationType=""system"" " & _
-        "      hint-buttonStyle=""Critical""" & _
-        "      arguments=""dismiss""/>" & _
-        "  </actions>" & _
+        '<toast scenario="reminder" activationType="background" launch="action=mainContent" duration="short" useButtonStyle="true">' & _
+        '  <visual>' & _
+        '    <binding template="ToastGeneric">' & _
+        '      <text>Sample toast</text>' & _
+        '      <text>Sample content</text>' & _
+        '    </binding>' & _
+        '  </visual>' & _
+        '  <actions>' & _
+        '    <action' & _
+        '      content="Delete" ' & _
+        '      activationType="protocol" ' & _
+        '      hint-buttonStyle="Success"' & _
+        '      arguments="action=delete"/>' & _
+        '    <action' & _
+        '      content="Dismiss" ' & _
+        '      activationType="system" ' & _
+        '      hint-buttonStyle="Critical"' & _
+        '      arguments="dismiss"/>' & _
+        '  </actions>' & _
         "</toast>"
 
     Local $pToast = _Toast_CreateToastNotificationFromXmlString($sToast)
