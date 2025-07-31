@@ -45,6 +45,7 @@ EndFunc
 Func ToastFromXmlString()
     DownloadImage()
 
+    ; https://learn.microsoft.com/en-us/windows/apps/design/shell/tiles-and-notifications/adaptive-interactive-toasts?tabs=xml
     Local $sToast = _
         '<toast scenario="reminder" activationType="background" launch="action=mainContent" duration="short" useButtonStyle="true">' & _
         '  <visual>' & _
