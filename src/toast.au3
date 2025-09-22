@@ -171,6 +171,43 @@ Func _Toast_Show($oToastNotification, $sAppId = @ScriptName)
     Return $hr
 EndFunc
 
+Func _Toast_hide($oToastNotification, $sAppId = @ScriptName)
+    Local $oToastNotificationManager = __Toast_ToastNotificationManager()
+    If @error <> 0 Then Return SetError(@error, @extended, $oToastNotificationManager)
+
+    Local $hr = __Toast_WindowsCreateString($sAppId, $sAppId)
+    If $hr <> 0 Then
+        Return SetError($hr)
+    EndIf
+
+    Local $pToastNotifier = 0
+    $hr = $oToastNotificationManager.CreateToastNotifierWithId($sAppId, $pToastNotifier)
+    If @error <> 0 Then Return SetError(@error, @extended, $hr)
+    If $hr <> 0 Then
+        __Toast_WindowsDeleteString($sAppId)
+        Return SetError($hr)
+    EndIf
+
+    __Toast_WindowsDeleteString($sAppId)
+
+    Local $oToastNotifier = ObjCreateInterface($pToastNotifier, "{75927B93-03F3-41EC-91D3-6E5BAC1B38E7}", $sIInspectable & "Show HRESULT(PTR);Hide HRESULT(PTR);")
+
+    If @error <> 0 Then
+        __Toast_IUnknown_Release($pToastNotifier)
+        Return SetError(@error, @extended, $oToastNotifier)
+    EndIf
+
+    $hr = $oToastNotifier.Hide($oToastNotification)
+    If @error <> 0 Then Return SetError(@error, @extended, $hr)
+    If $hr <> 0 Then
+        Return SetError($hr)
+    EndIf
+
+    __Toast_IUnknown_Release($pToastNotifier)
+
+    Return $hr
+EndFunc
+
 Func _Toast_CreateToastNotificationFromXmlObject($oXml)
     Local Static $IID_IToastNotificationFactory = "{04124B20-82C6-4229-B109-FD9ED4662B53}"
     Local $tIID_IToastNotificationFactory = _WinAPI_GUIDFromString($IID_IToastNotificationFactory)
