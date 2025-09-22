@@ -324,7 +324,7 @@ Func __Toast_XmlDocument()
     If @error <> 0 Then
         Local $error = @error, $extended = @extended
         __Toast_IUnknown_Release($pXmlDocument)
-        Return SetError($error, $extended, $oXmlDocument)
+        Return SetError($error, $extended, 0)
     EndIf
 
     ;__Toast_IUnknown_Release($pInspectable)
