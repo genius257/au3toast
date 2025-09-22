@@ -256,7 +256,7 @@ Func _Toast_CreateToastNotificationFromXmlString($sXml)
     __Toast_QueryInterface($pXmlDocument, $UIID_IXmlDocumentIO, $pXmlDocumentIO)
 
     If @error <> 0 Then
-        Return SetError(@error, @extended, $oXmlDocumentIO)
+        Return SetError(@error, @extended, 0)
     EndIf
 
 
