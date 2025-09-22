@@ -1,4 +1,5 @@
 #include <WinAPIConv.au3>
+#include <Memory.au3>
 
 Global Const $sIInspectable = "GetIids HRESULT(ULONG*;PTR*);GetRuntimeClassName HRESULT(PTR);GetTrustLevel HRESULT(PTR);"
 
@@ -17,6 +18,13 @@ Global Enum _
 Func RoGetActivationFactory($activatableClassId, $iid, ByRef $factory)
     Local $aRet = DllCall("Combase.dll", "LONG", "RoGetActivationFactory", "PTR", $activatableClassId, "PTR", $iid, "PTR*", 0)
     $factory = $aRet[3]
+    Return $aRet[0]
+EndFunc
+
+Func __Toast_GlobalHandle($pMem)
+    Local $aRet = DllCall("Kernel32.dll", "ptr", "GlobalHandle", "ptr", $pMem)
+    If @error<>0 Then Return SetError(@error, @extended, 0)
+    If $aRet[0]=0 Then Return SetError(-1, @extended, 0)
     Return $aRet[0]
 EndFunc
 
@@ -321,4 +329,138 @@ Func __Toast_ToastNotificationFactory()
     EndIf
 
     Return $oIToastNotificationFactory
+EndFunc
+
+Func __Toast_ToastNotification($pToastNotification)
+    Local Static $IID_IToastNotification = "{997E2675-059E-4E60-8B06-1760917C8B80}"
+    Local Static $sToastNotification = $sIInspectable & "get_Content HRESULT(ptr*);put_ExpirationTime HRESULT(ptr);get_ExpirationTime HRESULT(ptr*);add_Dismissed HRESULT(ptr;ptr*);remove_Dismissed HRESULT(ptr);add_Activated HRESULT(ptr;ptr*);remove_Activated HRESULT(ptr);add_Failed HRESULT(ptr;ptr*);remove_Failed HRESULT(ptr);"
+
+    Return ObjCreateInterface($pToastNotification, $IID_IToastNotification, $sToastNotification)
+EndFunc
+
+Func __Toast_ITypedEventHandler_Activated($fCallback)
+    Local Static $hQueryInterface = DllCallbackRegister(__Toast_ITypedEventHandler_Activated_QueryInterface, "LONG", "ptr;ptr;ptr")
+    Local Static $pQueryInterface = DllCallbackGetPtr($hQueryInterface)
+
+    Return __Toast_ITypedEventHandler($fCallback, $pQueryInterface)
+EndFunc
+
+Func __Toast_ITypedEventHandler_Dismissed($fCallback)
+    Local Static $hQueryInterface = DllCallbackRegister(__Toast_ITypedEventHandler_Dismissed_QueryInterface, "LONG", "ptr;ptr;ptr")
+    Local Static $pQueryInterface = DllCallbackGetPtr($hQueryInterface)
+
+    Return __Toast_ITypedEventHandler($fCallback, $pQueryInterface)
+EndFunc
+
+Func __Toast_ITypedEventHandler_Failed($fCallback)
+    Local Static $hQueryInterface = DllCallbackRegister(__Toast_ITypedEventHandler_Failed_QueryInterface, "LONG", "ptr;ptr;ptr")
+    Local Static $pQueryInterface = DllCallbackGetPtr($hQueryInterface)
+
+    Return __Toast_ITypedEventHandler($fCallback, $pQueryInterface)
+EndFunc
+
+Func __Toast_ITypedEventHandler($fCallback, $pQueryInterface)
+    Local $hInvoke = DllCallbackRegister($fCallback, "dword", "ptr;ptr;ptr")
+    Local $pInvoke = DllCallbackGetPtr($hInvoke)
+    Local Static $hAddRef = DllCallbackRegister(__Toast_ITypedEventHandler_AddRef, "dword", "PTR")
+    Local Static $pAddRef = DllCallbackGetPtr($hAddRef)
+    Local Static $hRelease = DllCallbackRegister(__Toast_ITypedEventHandler_Release, "dword", "PTR")
+    Local Static $pRelease = DllCallbackGetPtr($hRelease)
+
+    Local $tObject = DllStructCreate("int refcount;ptr object;ptr vtable[4];handle dllcallback;")
+    DllStructSetData($tObject, "refcount", 1)
+    DllStructSetData($tObject, "vtable", $pQueryInterface, 1)
+    DllStructSetData($tObject, "vtable", $pAddRef, 2)
+    DllStructSetData($tObject, "vtable", $pRelease, 3)
+    DllStructSetData($tObject, "vtable", $pInvoke, 4)
+    DllStructSetData($tObject, "dllcallback", $hInvoke)
+
+    Local $pObject = DllStructGetPtr($tObject)
+    Local $iSize = DllStructGetSize($tObject)
+    Local $hMemory = _MemGlobalAlloc($iSize, $GMEM_MOVEABLE)
+    Local $pMemory = _MemGlobalLock($hMemory)
+    _MemMoveMemory($pObject, $pMemory, $iSize)
+    Local $tObject = DllStructCreate("int refcount;ptr object;ptr vtable[4];handle dllcallback;", $pMemory)
+    DllStructSetData($tObject, "object", DllStructGetPtr($tObject, "vtable"))
+
+    Return DllStructGetPtr($tObject, "object")
+EndFunc
+
+Func __Toast_ITypedEventHandler_Activated_QueryInterface($pSelf, $pRIID, $pObj)
+    If $pObj=0 Then Return 0x80004003; E_POINTER
+
+    Local $sGUID=DllCall("ole32.dll", "int", "StringFromGUID2", "PTR", $pRIID, "wstr", "", "int", 40)[2]
+
+    Switch $sGUID
+        Case '{00000000-0000-0000-C000-000000000046}' _; IID_IUnknown
+        , '{AB54DE2D-97D9-5528-B6AD-105AFE156530}'; ITypedEventHandler<ABI::Windows::UI::Notifications::ToastNotification*,IInspectable*>
+            Local $tStruct = DllStructCreate("ptr", $pObj)
+            DllStructSetData($tStruct, 1, $pSelf)
+            __Toast_ITypedEventHandler_AddRef($pSelf)
+            Return 0x0; S_OK
+        Case Else
+            return 0x80004002; E_NOINTERFACE
+    EndSwitch
+EndFunc
+
+Func __Toast_ITypedEventHandler_Dismissed_QueryInterface($pSelf, $pRIID, $pObj)
+    If $pObj=0 Then Return 0x80004003; E_POINTER
+
+    Local $sGUID=DllCall("ole32.dll", "int", "StringFromGUID2", "PTR", $pRIID, "wstr", "", "int", 40)[2]
+
+    Switch $sGUID
+        Case '{00000000-0000-0000-C000-000000000046}' _; IID_IUnknown
+        , '{61C2402F-0ED0-5A18-AB69-59F4AA99A368}'; ITypedEventHandler<ABI::Windows::UI::Notifications::ToastNotification*,ABI::Windows::UI::Notifications::ToastDismissedEventArgs*>
+            Local $tStruct = DllStructCreate("ptr", $pObj)
+            DllStructSetData($tStruct, 1, $pSelf)
+            __Toast_ITypedEventHandler_AddRef($pSelf)
+            Return 0x0; S_OK
+        Case Else
+            return 0x80004002; E_NOINTERFACE
+    EndSwitch
+EndFunc
+
+Func __Toast_ITypedEventHandler_Failed_QueryInterface($pSelf, $pRIID, $pObj)
+    If $pObj=0 Then Return 0x80004003; E_POINTER
+
+    Local $sGUID=DllCall("ole32.dll", "int", "StringFromGUID2", "PTR", $pRIID, "wstr", "", "int", 40)[2]
+
+    Switch $sGUID
+        Case '{00000000-0000-0000-C000-000000000046}' _; IID_IUnknown
+        , '{95E3E803-C969-5E3A-9753-EA2AD22A9A33}'; ITypedEventHandler<ABI::Windows::UI::Notifications::ToastNotification*,ABI::Windows::UI::Notifications::ToastFailedEventArgs*>
+            Local $tStruct = DllStructCreate("ptr", $pObj)
+            DllStructSetData($tStruct, 1, $pSelf)
+            __Toast_ITypedEventHandler_AddRef($pSelf)
+            Return 0x0; S_OK
+        Case Else
+            return 0x80004002; E_NOINTERFACE
+    EndSwitch
+EndFunc
+
+Func __Toast_ITypedEventHandler_AddRef($pSelf)
+    Local $tStruct = DllStructCreate("int Ref", $pSelf - 4)
+    $tStruct.Ref += 1
+    Return $tStruct.Ref
+EndFunc
+
+Func __Toast_ITypedEventHandler_Release($pSelf)
+    Local $tStruct = DllStructCreate("int Ref", $pSelf - 4)
+    $tStruct.Ref -= 1
+
+    If $tStruct.Ref > 0 Then Return $tStruct.Ref
+
+    ; ConsoleWrite("Free memory"&@CRLF)
+
+    Local $pMemory = $pSelf - 4
+    Local $tObject = DllStructCreate("int refcount;ptr object;ptr vtable[4];handle dllcallback;", $pMemory)
+    DllCallbackFree($tObject.dllcallback)
+
+    Local $hMemory = __Toast_GlobalHandle($pMemory)
+    _MemGlobalFree($hMemory)
+
+    Return 0
+EndFunc
+
+Func __Toast_ITypedEventHandler_Invoke($pSelf, $pSender, $pArgs)
+    ;
 EndFunc
