@@ -494,8 +494,6 @@ Func __Toast_ITypedEventHandler_Release($pSelf)
 
     If $tStruct.Ref > 0 Then Return $tStruct.Ref
 
-    ; ConsoleWrite("Free memory"&@CRLF)
-
     Local $pMemory = $pSelf - 4
     Local $tObject = DllStructCreate("int refcount;ptr object;ptr vtable[4];handle dllcallback;", $pMemory)
     DllCallbackFree($tObject.dllcallback)
