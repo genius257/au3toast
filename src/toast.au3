@@ -6,6 +6,11 @@
 
 Global Const $sIInspectable = "GetIids HRESULT(ULONG;PTR*);GetRuntimeClassName HRESULT(PTR);GetTrustLevel HRESULT(PTR);"
 
+Global Const $_Toast_S_OK = 0x0
+Global Const $_Toast_E_FAIL = 0x80004005
+Global Const $_Toast_E_NOINTERFACE = 0x80004002
+Global Const $_Toast_E_POINTER = 0x80004003
+
 ;Global $__Toast_
 
 Global Enum _
@@ -427,7 +432,7 @@ Func __Toast_ITypedEventHandler($fCallback, $pQueryInterface)
 EndFunc
 
 Func __Toast_ITypedEventHandler_Activated_QueryInterface($pSelf, $pRIID, $pObj)
-    If $pObj=0 Then Return 0x80004003; E_POINTER
+    If $pObj=0 Then Return $_Toast_E_POINTER
 
     Local $sGUID = _WinAPI_StringFromGUID($pRIID)
 
@@ -437,14 +442,14 @@ Func __Toast_ITypedEventHandler_Activated_QueryInterface($pSelf, $pRIID, $pObj)
             Local $tStruct = DllStructCreate("ptr", $pObj)
             DllStructSetData($tStruct, 1, $pSelf)
             __Toast_ITypedEventHandler_AddRef($pSelf)
-            Return 0x0; S_OK
+            Return $_Toast_S_OK
         Case Else
-            return 0x80004002; E_NOINTERFACE
+            return $_Toast_E_NOINTERFACE
     EndSwitch
 EndFunc
 
 Func __Toast_ITypedEventHandler_Dismissed_QueryInterface($pSelf, $pRIID, $pObj)
-    If $pObj=0 Then Return 0x80004003; E_POINTER
+    If $pObj=0 Then Return $_Toast_E_POINTER
 
     Local $sGUID = _WinAPI_StringFromGUID($pRIID)
 
@@ -454,14 +459,14 @@ Func __Toast_ITypedEventHandler_Dismissed_QueryInterface($pSelf, $pRIID, $pObj)
             Local $tStruct = DllStructCreate("ptr", $pObj)
             DllStructSetData($tStruct, 1, $pSelf)
             __Toast_ITypedEventHandler_AddRef($pSelf)
-            Return 0x0; S_OK
+            Return $_Toast_S_OK
         Case Else
-            return 0x80004002; E_NOINTERFACE
+            return $_Toast_E_NOINTERFACE
     EndSwitch
 EndFunc
 
 Func __Toast_ITypedEventHandler_Failed_QueryInterface($pSelf, $pRIID, $pObj)
-    If $pObj=0 Then Return 0x80004003; E_POINTER
+    If $pObj=0 Then Return $_Toast_E_POINTER
 
     Local $sGUID = _WinAPI_StringFromGUID($pRIID)
 
@@ -471,9 +476,9 @@ Func __Toast_ITypedEventHandler_Failed_QueryInterface($pSelf, $pRIID, $pObj)
             Local $tStruct = DllStructCreate("ptr", $pObj)
             DllStructSetData($tStruct, 1, $pSelf)
             __Toast_ITypedEventHandler_AddRef($pSelf)
-            Return 0x0; S_OK
+            Return $_Toast_S_OK
         Case Else
-            return 0x80004002; E_NOINTERFACE
+            return $_Toast_E_NOINTERFACE
     EndSwitch
 EndFunc
 
