@@ -1,5 +1,8 @@
 #include <WinAPIConv.au3>
 #include <Memory.au3>
+#include <WinAPICom.au3>
+#include <WinAPIShellEx.au3>
+#include <WinAPIShPath.au3>
 
 Global Const $sIInspectable = "GetIids HRESULT(ULONG*;PTR*);GetRuntimeClassName HRESULT(PTR);GetTrustLevel HRESULT(PTR);"
 
@@ -426,7 +429,7 @@ EndFunc
 Func __Toast_ITypedEventHandler_Activated_QueryInterface($pSelf, $pRIID, $pObj)
     If $pObj=0 Then Return 0x80004003; E_POINTER
 
-    Local $sGUID=DllCall("ole32.dll", "int", "StringFromGUID2", "PTR", $pRIID, "wstr", "", "int", 40)[2]
+    Local $sGUID = _WinAPI_StringFromGUID($pRIID)
 
     Switch $sGUID
         Case '{00000000-0000-0000-C000-000000000046}' _; IID_IUnknown
@@ -443,7 +446,7 @@ EndFunc
 Func __Toast_ITypedEventHandler_Dismissed_QueryInterface($pSelf, $pRIID, $pObj)
     If $pObj=0 Then Return 0x80004003; E_POINTER
 
-    Local $sGUID=DllCall("ole32.dll", "int", "StringFromGUID2", "PTR", $pRIID, "wstr", "", "int", 40)[2]
+    Local $sGUID = _WinAPI_StringFromGUID($pRIID)
 
     Switch $sGUID
         Case '{00000000-0000-0000-C000-000000000046}' _; IID_IUnknown
@@ -460,7 +463,7 @@ EndFunc
 Func __Toast_ITypedEventHandler_Failed_QueryInterface($pSelf, $pRIID, $pObj)
     If $pObj=0 Then Return 0x80004003; E_POINTER
 
-    Local $sGUID=DllCall("ole32.dll", "int", "StringFromGUID2", "PTR", $pRIID, "wstr", "", "int", 40)[2]
+    Local $sGUID = _WinAPI_StringFromGUID($pRIID)
 
     Switch $sGUID
         Case '{00000000-0000-0000-C000-000000000046}' _; IID_IUnknown
