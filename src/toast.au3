@@ -4,7 +4,7 @@
 #include <WinAPIShellEx.au3>
 #include <WinAPIShPath.au3>
 
-Global Const $sIInspectable = "GetIids HRESULT(ULONG*;PTR*);GetRuntimeClassName HRESULT(PTR);GetTrustLevel HRESULT(PTR);"
+Global Const $sIInspectable = "GetIids HRESULT(ULONG;PTR*);GetRuntimeClassName HRESULT(PTR);GetTrustLevel HRESULT(PTR);"
 
 ;Global $__Toast_
 
