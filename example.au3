@@ -58,7 +58,7 @@ Func ToastFromXmlString()
         '  <actions>' & _
         '    <action' & _
         '      content="Delete"' & _
-        '      activationType="protocol"' & _
+        '      activationType="background"' & _
         '      hint-buttonStyle="Success"' & _
         '      arguments="action=delete"/>' & _
         '    <action' & _
