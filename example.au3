@@ -57,10 +57,10 @@ Func ToastFromXmlString()
         '  </visual>' & _
         '  <actions>' & _
         '    <action' & _
-        '      content="Delete"' & _
+        '      content="Click me"' & _
         '      activationType="background"' & _
         '      hint-buttonStyle="Success"' & _
-        '      arguments="action=delete"/>' & _
+        '      arguments="action=click_me"/>' & _
         '    <action' & _
         '      content="Dismiss"' & _
         '      activationType="system"' & _
