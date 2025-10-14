@@ -3,6 +3,8 @@
 #include <WinAPICom.au3>
 #include <WinAPIShellEx.au3>
 #include <WinAPIShPath.au3>
+#include <WinApiReg.au3>
+#include <WinAPIConv.au3>
 
 Global Const $sIInspectable = "GetIids HRESULT(ULONG;PTR*);GetRuntimeClassName HRESULT(PTR);GetTrustLevel HRESULT(PTR);"
 
@@ -506,4 +508,221 @@ EndFunc
 
 Func __Toast_ITypedEventHandler_Invoke($pSelf, $pSender, $pArgs)
     ;
+EndFunc
+
+Global Const $__Toast_tNOTIFICATION_USER_INPUT_DATA = "STRUCT;PTR Key;PTR Value;ENDSTRUCT;"
+
+Func __Toast_INotificationActivationCallback($hCallback = 0)
+    Local Static $hQueryInterface = DllCallbackRegister(__Toast_INotificationActivationCallback_QueryInterface, "LONG", "ptr;ptr;ptr")
+    Local Static $pQueryInterface = DllCallbackGetPtr($hQueryInterface)
+    Local Static $hAddRef = DllCallbackRegister(__Toast_ITypedEventHandler_AddRef, "dword", "PTR")
+    Local Static $pAddRef = DllCallbackGetPtr($hAddRef)
+    Local Static $hRelease = DllCallbackRegister(__Toast_ITypedEventHandler_Release, "dword", "PTR")
+    Local Static $pRelease = DllCallbackGetPtr($hRelease)
+    Local Static $hActivate = DllCallbackRegister(__Toast_INotificationActivationCallback_Activate, "LONG", "ptr;WSTR;WSTR;ptr;ulong")
+    Local Static $pActivate = DllCallbackGetPtr($hActivate)
+
+    Local $tObject = DllStructCreate("int refcount;ptr object;ptr vtable[4];handle dllcallback;")
+    DllStructSetData($tObject, "refcount", 1)
+    DllStructSetData($tObject, "vtable", $pQueryInterface, 1)
+    DllStructSetData($tObject, "vtable", $pAddRef, 2)
+    DllStructSetData($tObject, "vtable", $pRelease, 3)
+    Local $pCallback = $hCallback = 0 ? $pActivate : DllCallbackGetPtr($hCallback)
+    DllStructSetData($tObject, "vtable", $pCallback, 4)
+    ;DllStructSetData($tObject, "dllcallback", $hCallback)
+
+    Local $pObject = DllStructGetPtr($tObject)
+    Local $iSize = DllStructGetSize($tObject)
+    Local $hMemory = _MemGlobalAlloc($iSize, $GMEM_MOVEABLE)
+    Local $pMemory = _MemGlobalLock($hMemory)
+    _MemMoveMemory($pObject, $pMemory, $iSize)
+    Local $tObject = DllStructCreate("int refcount;ptr object;ptr vtable[4];handle dllcallback;", $pMemory)
+    DllStructSetData($tObject, "object", DllStructGetPtr($tObject, "vtable"))
+
+    Return DllStructGetPtr($tObject, "object")
+EndFunc
+
+Func __Toast_INotificationActivationCallback_QueryInterface($pSelf, $pRIID, $pObj)
+    If $pObj=0 Then Return $_Toast_E_POINTER
+
+    Local $sGUID = _WinAPI_StringFromGUID($pRIID)
+
+    Switch $sGUID
+        Case '{00000000-0000-0000-C000-000000000046}' _; IID_IUnknown
+        , '{53E31837-6600-4A81-9395-75CFFE746F94}'; INotificationActivationCallback
+            Local $tStruct = DllStructCreate("ptr", $pObj)
+            DllStructSetData($tStruct, 1, $pSelf)
+            __Toast_ITypedEventHandler_AddRef($pSelf)
+            Return $_Toast_S_OK
+        Case Else
+            return $_Toast_E_NOINTERFACE
+    EndSwitch
+EndFunc
+
+Func __Toast_INotificationActivationCallback_Activate($pSelf, $appUserModelId, $invokedArgs, $data, $count)
+    ConsoleWrite("appUserModelId: "&$appUserModelId&@CRLF)
+    ConsoleWrite("invokedArgs: "&$invokedArgs&@CRLF)
+    ConsoleWrite("count: "&$count&@CRLF)
+
+    Return $_Toast_S_OK
+EndFunc
+
+Func __Toast_CoRegisterClassObject($sAppID = @ScriptName, $tCLSID = _Toast_CoCreateGuid(), $fCallback = Null)
+    _WinAPI_SetCurrentProcessExplicitAppUserModelID($sAppID)
+
+    $pCLSID = DllStructGetPtr($tCLSID)
+
+    Local Static $CLSCTX_LOCAL_SERVER = 0x4
+    Local Static $REGCLS_MULTIPLEUSE = 1
+
+    Local $pIClassFactor = __Toast_IClassFactory($fCallback)
+    ;Local $pINotificationActivationCallback = __Toast_INotificationActivationCallback()
+    Local $aResult = DllCall("ole32.dll", "long", "CoRegisterClassObject", "ptr", $pCLSID, "ptr", $pIClassFactor, "uint", $CLSCTX_LOCAL_SERVER, "uint", $REGCLS_MULTIPLEUSE, "dword*", 0)
+    If @error <> 0 Then Return SetError(@error, @extended, 0)
+
+    If $aResult[0] <> 0 Then Return SetError($aResult[0], 0, 0)
+
+    Return $aResult[5]
+EndFunc
+
+Func __Toast_CoRevokeClassObject($dwRegister)
+    Local $aResult = DllCall("Ole32.dll", "LONG", "CoRevokeClassObject", "DWORD", $dwRegister)
+    If @error <> 0 Then Return SetError(@error, @extended, 0)
+
+    Return $aResult[0]
+EndFunc
+
+Func _Toast_CoCreateGuid()
+    Local $tGUID = DllStructCreate($__tagWinAPICom_GUID)
+    Local $aCall = DllCall('ole32.dll', 'long', 'CoCreateGuid', 'struct*', $tGUID)
+    If @error Then Return SetError(@error, @extended, '')
+    If $aCall[0] Then Return SetError(10, $aCall[0], '')
+
+    Return $aCall[1]
+EndFunc
+
+Func __Toast_IClassFactory($fCallback = Null)
+    Local Static $hQueryInterface = DllCallbackRegister(__Toast_IClassFactory_QueryInterface, "LONG", "ptr;ptr;ptr")
+    Local Static $pQueryInterface = DllCallbackGetPtr($hQueryInterface)
+    Local Static $hAddRef = DllCallbackRegister(__Toast_ITypedEventHandler_AddRef, "dword", "PTR")
+    Local Static $pAddRef = DllCallbackGetPtr($hAddRef)
+    Local Static $hRelease = DllCallbackRegister(__Toast_IClassFactory_Release, "dword", "PTR")
+    Local Static $pRelease = DllCallbackGetPtr($hRelease)
+    Local Static $hCreateInstance = DllCallbackRegister(__Toast_IClassFactory_CreateInstance, "LONG", "PTR;PTR;PTR;PTR")
+    Local Static $pCreateInstance = DllCallbackGetPtr($hCreateInstance)
+    Local Static $hLockServer = DllCallbackRegister(__Toast_IClassFactory_LockServer, "LONG", "BOOLEAN")
+    Local static $pLockServer = DllCallbackGetPtr($hLockServer)
+
+    Local $tObject = DllStructCreate("int refcount;ptr object;ptr vtable[5];ptr callback;")
+    DllStructSetData($tObject, "refcount", 1)
+    DllStructSetData($tObject, "vtable", $pQueryInterface, 1)
+    DllStructSetData($tObject, "vtable", $pAddRef, 2)
+    DllStructSetData($tObject, "vtable", $pRelease, 3)
+    DllStructSetData($tObject, "vtable", $pCreateInstance, 4)
+    DllStructSetData($tObject, "vtable", $pLockServer, 5)
+    If IsFunc($fCallback) Then
+        Local $hCallback = DllCallbackRegister($fCallback, "LONG", "ptr;WSTR;WSTR;ptr;ulong")
+        DllStructSetData($tObject, "callback", $hCallback)
+    EndIf
+
+    Local $pObject = DllStructGetPtr($tObject)
+    Local $iSize = DllStructGetSize($tObject)
+    Local $hMemory = _MemGlobalAlloc($iSize, $GMEM_MOVEABLE)
+    Local $pMemory = _MemGlobalLock($hMemory)
+    _MemMoveMemory($pObject, $pMemory, $iSize)
+    Local $tObject = DllStructCreate("int refcount;ptr object;ptr vtable[5];ptr callback;", $pMemory)
+    DllStructSetData($tObject, "object", DllStructGetPtr($tObject, "vtable"))
+
+    Return DllStructGetPtr($tObject, "object")
+EndFunc
+
+Func __Toast_IClassFactory_Release($pSelf)
+    Local $tStruct = DllStructCreate("int Ref", $pSelf - 4)
+    $tStruct.Ref -= 1
+
+    If $tStruct.Ref > 0 Then Return $tStruct.Ref
+
+    Local $pMemory = $pSelf - 4
+    Local $tObject = DllStructCreate("int refcount;ptr object;ptr vtable[5];ptr callback;", $pMemory)
+
+    Local $hMemory = __Toast_GlobalHandle($pMemory)
+    _MemGlobalFree($hMemory)
+
+    Return 0
+EndFunc
+
+Func __Toast_IClassFactory_QueryInterface($pSelf, $pRIID, $pObj)
+    If $pObj=0 Then Return $_Toast_E_POINTER
+
+    Local $sGUID = _WinAPI_StringFromGUID($pRIID)
+
+    Switch $sGUID
+        Case '{00000000-0000-0000-C000-000000000046}', _; IID_IUnknown
+            '{00000001-0000-0000-C000-000000000046}' ; IClassFactory
+            Local $tStruct = DllStructCreate("ptr", $pObj)
+            DllStructSetData($tStruct, 1, $pSelf)
+            __Toast_ITypedEventHandler_AddRef($pSelf)
+            Return $_Toast_S_OK
+        Case Else
+            return $_Toast_E_NOINTERFACE
+    EndSwitch
+EndFunc
+
+Func __Toast_IClassFactory_CreateInstance($pSelf, $pUnkOuter, $pRIID, $ppvObject)
+    Local $sGUID = _WinAPI_StringFromGUID($pRIID)
+
+    Switch $sGUID
+        Case '{00000000-0000-0000-C000-000000000046}'
+            Local $pMemory = $pSelf - 4
+            Local $tObject = DllStructCreate("int refcount;ptr object;ptr vtable[5];ptr callback;", $pMemory)
+            Local $pINotificationActivationCallback = __Toast_INotificationActivationCallback(DllStructGetData($tObject, 'callback'))
+
+            DllStructSetData(DllStructCreate("PTR", $ppvObject), 1, $pINotificationActivationCallback)
+            Return $_Toast_S_OK
+    EndSwitch
+
+    return $_Toast_E_NOINTERFACE
+EndFunc
+
+Func __Toast_IClassFactory_LockServer($pSelf, $fLock)
+    Return $_Toast_E_FAIL
+EndFunc
+
+Global $__Toast_Activator = 0
+
+Func _Toast_Initialize( _
+    $sAppName = @ScriptName, _
+    $tCLSID = _Toast_CoCreateGuid(), _
+    $fCallback = Null, _
+    $sDisplayName = $sAppName, _
+    $sIconUri = Null _
+)
+    $__Toast_Activator = __Toast_CoRegisterClassObject($sAppName, $tCLSID, $fCallback)
+
+    Local $hKey = _WinAPI_RegCreateKey($HKEY_CURRENT_USER, "Software\Classes\AppUserModelId\" & $sAppName, $KEY_ALL_ACCESS, $REG_OPTION_VOLATILE)
+
+    Local $tValue
+
+    $tValue = DllStructCreate("WCHAR[" & (StringLen($sDisplayName) + 2) & "]")
+    DllStructSetData($tValue, 1, $sDisplayName)
+    _WinAPI_RegSetValue($hKey, "DisplayName", $REG_SZ, $tValue, DllStructGetSize($tValue))
+
+    If Not ($sIconUri = Null) Then
+        $tValue = DllStructCreate("WCHAR[" & (StringLen($sIconUri) + 2) & "]")
+        DllStructSetData($tValue, 1, $sIconUri)
+        _WinAPI_RegSetValue($hKey, "IconUri", $REG_SZ, $tValue, DllStructGetSize($tValue))
+    EndIf
+
+    Local $sGUID = _WinAPI_StringFromGUID($tCLSID)
+    $tValue = DllStructCreate("WCHAR[" & (StringLen($sGUID) + 2) & "]")
+    DllStructSetData($tValue, 1, $sGUID)
+    _WinAPI_RegSetValue($hKey, "CustomActivator", $REG_SZ, $tValue, DllStructGetSize($tValue))
+
+    _WinAPI_RegCloseKey($hKey)
+
+    OnAutoItExitRegister("__Toast_Terminate")
+EndFunc
+
+Func __Toast_Terminate()
+    __Toast_CoRevokeClassObject($__Toast_Activator)
 EndFunc

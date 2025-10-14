@@ -3,6 +3,42 @@
 #include <GUIConstantsEx.au3>
 #include <InetConstants.au3>
 
+#include <WinApiReg.au3>
+#include <WinApiIcons.au3>
+#include <GDIPlus.au3>
+#include <WinAPIConv.au3>
+
+If Not FileExists(@TempDir & "\e25dbe211ddfb027fcb8271d833159fc.png") Then
+    _GDIPlus_Startup()
+    $thIcons = DllStructCreate("HWND")
+    $x = _WinAPI_ExtractIconEx(@AutoItExe, 0, 0, $thIcons, 1)
+    ConsoleWrite($x&@CRLF)
+    $hBitmap = _GDIPlus_BitmapCreateFromHICON(DllStructGetData($thIcons, 1))
+    _GDIPlus_ImageSaveToFileEx($hBitmap, @TempDir & "\e25dbe211ddfb027fcb8271d833159fc.png", _GDIPlus_EncodersGetCLSID("PNG"))
+    _GDIPlus_BitmapDispose($hBitmap)
+    ConsoleWrite(@error&@CRLF)
+    _GDIPlus_Shutdown()
+    _WinAPI_DestroyIcon(DllStructGetData($thIcons, 1))
+EndIf
+
+Global Const $sAppName = @ScriptName
+Global $tCLSID = _Toast_CoCreateGuid()
+Global $sGUID = _WinAPI_StringFromGUID($tCLSID)
+ConsoleWrite("app CLSID: "&$sGUID&@CRLF)
+
+_Toast_Initialize($sAppName, $tCLSID, OnToastActivation, "AutoIt Toast Example", @TempDir & "\e25dbe211ddfb027fcb8271d833159fc.png")
+
+; https://learn.microsoft.com/en-us/windows/win32/api/notificationactivationcallback/nf-notificationactivationcallback-inotificationactivationcallback-activate
+Func OnToastActivation($pSelf, $appUserModelId, $invokedArgs, $data, $count)
+    _GUICtrlRichEdit_AppendText($hRich, _
+        "Toast activated!" & @CRLF _
+        & "    " & "appUserModelId: " & $appUserModelId & @CRLF _
+        & "    " & "invokedArgs: " & $invokedArgs & @CRLF _
+    )
+
+    Return $_Toast_S_OK
+EndFunc
+
 Opt("GuiOnEventMode", 1)
 
 Global $hWnd = GUICreate("Toast example", 700, 320)
@@ -60,6 +96,7 @@ Func ToastFromXmlString()
         '      content="Click me"' & _
         '      activationType="background"' & _
         '      hint-buttonStyle="Success"' & _
+        _;'      afterActivationBehavior="pendingUpdate"' & _
         '      arguments="action=click_me"/>' & _
         '    <action' & _
         '      content="Dismiss"' & _
