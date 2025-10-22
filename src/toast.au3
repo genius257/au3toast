@@ -6,7 +6,7 @@
 #include <WinApiReg.au3>
 #include <WinAPIConv.au3>
 
-#Tidy_Parameters=/tc=4
+#Tidy_Parameters=/tc=4 /refc
 
 Global Const $sIInspectable = "GetIids HRESULT(ULONG;PTR*);GetRuntimeClassName HRESULT(PTR);GetTrustLevel HRESULT(PTR);"
 
@@ -30,14 +30,14 @@ Func RoGetActivationFactory($activatableClassId, $iid, ByRef $factory)
     Local $aRet = DllCall("Combase.dll", "LONG", "RoGetActivationFactory", "PTR", $activatableClassId, "PTR", $iid, "PTR*", 0)
     $factory = $aRet[3]
     Return $aRet[0]
-EndFunc   ;==>RoGetActivationFactory
+EndFunc
 
 Func __Toast_GlobalHandle($pMem)
     Local $aRet = DllCall("Kernel32.dll", "ptr", "GlobalHandle", "ptr", $pMem)
     If @error <> 0 Then Return SetError(@error, @extended, 0)
     If $aRet[0] = 0 Then Return SetError(-1, @extended, 0)
     Return $aRet[0]
-EndFunc   ;==>__Toast_GlobalHandle
+EndFunc
 
 Func __Toast_WindowsCreateString($sourceString, ByRef $pStr)
     Local $aRet = DllCall("combase.dll", "LONG", "WindowsCreateString", "WSTR", $sourceString, "long", StringLen($sourceString), "PTR*", 0)
@@ -49,7 +49,7 @@ Func __Toast_WindowsCreateString($sourceString, ByRef $pStr)
     $pStr = $aRet[3]
 
     Return $aRet[0]
-EndFunc   ;==>__Toast_WindowsCreateString
+EndFunc
 
 Func __Toast_WindowsDeleteString(ByRef $pStr)
     Local $aRet = DllCall("combase.dll", "LONG", "WindowsDeleteString", "PTR", $pStr)
@@ -61,7 +61,7 @@ Func __Toast_WindowsDeleteString(ByRef $pStr)
     $pStr = 0
 
     Return $aRet[0]
-EndFunc   ;==>__Toast_WindowsDeleteString
+EndFunc
 
 Func __Toast_ToastNotificationManager()
     Local Static $oToastNotificationManager = Null
@@ -101,7 +101,7 @@ Func __Toast_ToastNotificationManager()
     ;__Toast_IUnknown_Release($hToastNotificationManager)
 
     Return $oToastNotificationManager
-EndFunc   ;==>__Toast_ToastNotificationManager
+EndFunc
 
 Func __Toast_QueryInterface($pInterface, $riid, ByRef $ppvObject)
     If IsString($riid) Then $riid = _WinAPI_GUIDFromString($riid)
@@ -117,7 +117,7 @@ Func __Toast_QueryInterface($pInterface, $riid, ByRef $ppvObject)
     $ppvObject = $aRet[3]
 
     Return $aRet[0]
-EndFunc   ;==>__Toast_QueryInterface
+EndFunc
 
 Func __Toast_IUnknown_AddRef($pInterface)
     Local $pVTable = DllStructGetData(DllStructCreate("ptr", $pInterface), 1)
@@ -130,7 +130,7 @@ Func __Toast_IUnknown_AddRef($pInterface)
     If @error <> 0 Then Return SetError(@error, @extended, $aRet)
 
     Return $aRet[0]
-EndFunc   ;==>__Toast_IUnknown_AddRef
+EndFunc
 
 Func __Toast_IUnknown_Release($pInterface)
     Local $pVTable = DllStructGetData(DllStructCreate("ptr", $pInterface), 1)
@@ -143,7 +143,7 @@ Func __Toast_IUnknown_Release($pInterface)
     If @error <> 0 Then Return SetError(@error, @extended, $aRet)
 
     Return $aRet[0]
-EndFunc   ;==>__Toast_IUnknown_Release
+EndFunc
 
 Func _Toast_Show($oToastNotification, $sAppId = @ScriptName)
     Local $oToastNotificationManager = __Toast_ToastNotificationManager()
@@ -180,7 +180,7 @@ Func _Toast_Show($oToastNotification, $sAppId = @ScriptName)
     __Toast_IUnknown_Release($pToastNotifier)
 
     Return $hr
-EndFunc   ;==>_Toast_Show
+EndFunc
 
 Func _Toast_hide($oToastNotification, $sAppId = @ScriptName)
     Local $oToastNotificationManager = __Toast_ToastNotificationManager()
@@ -217,7 +217,7 @@ Func _Toast_hide($oToastNotification, $sAppId = @ScriptName)
     __Toast_IUnknown_Release($pToastNotifier)
 
     Return $hr
-EndFunc   ;==>_Toast_hide
+EndFunc
 
 Func _Toast_CreateToastNotificationFromXmlObject($oXml)
     Local Static $IID_IToastNotificationFactory = "{04124B20-82C6-4229-B109-FD9ED4662B53}"
@@ -252,7 +252,7 @@ Func _Toast_CreateToastNotificationFromXmlObject($oXml)
     __Toast_IUnknown_Release($hIToastNotificationFactory)
 
     Return $pToastNotification
-EndFunc   ;==>_Toast_CreateToastNotificationFromXmlObject
+EndFunc
 
 Func _Toast_CreateToastNotificationFromXmlString($sXml)
     Local $pXmlDocument = __Toast_XmlDocument()
@@ -293,7 +293,7 @@ Func _Toast_CreateToastNotificationFromXmlString($sXml)
     $hr = _Toast_CreateToastNotificationFromXmlObject($pXmlDocument)
 
     Return SetError(@error, @extended, $hr)
-EndFunc   ;==>_Toast_CreateToastNotificationFromXmlString
+EndFunc
 
 Func _Toast_CreateToastTemplateXmlDocument($iToastTemplateType = $_Toast_ToastTemplateType_ToastImageAndText01)
     Local $oToastNotificationManager = __Toast_ToastNotificationManager()
@@ -315,7 +315,7 @@ Func _Toast_CreateToastTemplateXmlDocument($iToastTemplateType = $_Toast_ToastTe
     ;__Toast_IUnknown_Release($pToastXml)
 
     Return $oToastXml
-EndFunc   ;==>_Toast_CreateToastTemplateXmlDocument
+EndFunc
 
 Func __Toast_XmlDocument()
     Local $classId = "Windows.Data.Xml.Dom.XmlDocument"
@@ -341,13 +341,13 @@ Func __Toast_XmlDocument()
     ;__Toast_IUnknown_Release($pInspectable)
 
     Return $pXmlDocument
-EndFunc   ;==>__Toast_XmlDocument
+EndFunc
 
 Func RoActivateInstance($activatableClassId, ByRef $instance)
     Local $aRet = DllCall("combase.dll", "LONG", "RoActivateInstance", "PTR", $activatableClassId, "PTR*", 0)
     $instance = $aRet[2]
     Return $aRet[0]
-EndFunc   ;==>RoActivateInstance
+EndFunc
 
 Func __Toast_ToastNotificationFactory()
 
@@ -377,35 +377,35 @@ Func __Toast_ToastNotificationFactory()
     EndIf
 
     Return $oIToastNotificationFactory
-EndFunc   ;==>__Toast_ToastNotificationFactory
+EndFunc
 
 Func __Toast_ToastNotification($pToastNotification)
     Local Static $IID_IToastNotification = "{997E2675-059E-4E60-8B06-1760917C8B80}"
     Local Static $sToastNotification = $sIInspectable & "get_Content HRESULT(ptr*);put_ExpirationTime HRESULT(ptr);get_ExpirationTime HRESULT(ptr*);add_Dismissed HRESULT(ptr;ptr*);remove_Dismissed HRESULT(ptr);add_Activated HRESULT(ptr;ptr*);remove_Activated HRESULT(ptr);add_Failed HRESULT(ptr;ptr*);remove_Failed HRESULT(ptr);"
 
     Return ObjCreateInterface($pToastNotification, $IID_IToastNotification, $sToastNotification)
-EndFunc   ;==>__Toast_ToastNotification
+EndFunc
 
 Func __Toast_ITypedEventHandler_Activated($fCallback)
     Local Static $hQueryInterface = DllCallbackRegister(__Toast_ITypedEventHandler_Activated_QueryInterface, "LONG", "ptr;ptr;ptr")
     Local Static $pQueryInterface = DllCallbackGetPtr($hQueryInterface)
 
     Return __Toast_ITypedEventHandler($fCallback, $pQueryInterface)
-EndFunc   ;==>__Toast_ITypedEventHandler_Activated
+EndFunc
 
 Func __Toast_ITypedEventHandler_Dismissed($fCallback)
     Local Static $hQueryInterface = DllCallbackRegister(__Toast_ITypedEventHandler_Dismissed_QueryInterface, "LONG", "ptr;ptr;ptr")
     Local Static $pQueryInterface = DllCallbackGetPtr($hQueryInterface)
 
     Return __Toast_ITypedEventHandler($fCallback, $pQueryInterface)
-EndFunc   ;==>__Toast_ITypedEventHandler_Dismissed
+EndFunc
 
 Func __Toast_ITypedEventHandler_Failed($fCallback)
     Local Static $hQueryInterface = DllCallbackRegister(__Toast_ITypedEventHandler_Failed_QueryInterface, "LONG", "ptr;ptr;ptr")
     Local Static $pQueryInterface = DllCallbackGetPtr($hQueryInterface)
 
     Return __Toast_ITypedEventHandler($fCallback, $pQueryInterface)
-EndFunc   ;==>__Toast_ITypedEventHandler_Failed
+EndFunc
 
 Func __Toast_ITypedEventHandler($fCallback, $pQueryInterface)
     Local $hInvoke = DllCallbackRegister($fCallback, "dword", "ptr;ptr;ptr")
@@ -432,7 +432,7 @@ Func __Toast_ITypedEventHandler($fCallback, $pQueryInterface)
     DllStructSetData($tObject, "object", DllStructGetPtr($tObject, "vtable"))
 
     Return DllStructGetPtr($tObject, "object")
-EndFunc   ;==>__Toast_ITypedEventHandler
+EndFunc
 
 Func __Toast_ITypedEventHandler_Activated_QueryInterface($pSelf, $pRIID, $pObj)
     If $pObj = 0 Then Return $_Toast_E_POINTER
@@ -449,7 +449,7 @@ Func __Toast_ITypedEventHandler_Activated_QueryInterface($pSelf, $pRIID, $pObj)
         Case Else
             Return $_Toast_E_NOINTERFACE
     EndSwitch
-EndFunc   ;==>__Toast_ITypedEventHandler_Activated_QueryInterface
+EndFunc
 
 Func __Toast_ITypedEventHandler_Dismissed_QueryInterface($pSelf, $pRIID, $pObj)
     If $pObj = 0 Then Return $_Toast_E_POINTER
@@ -466,7 +466,7 @@ Func __Toast_ITypedEventHandler_Dismissed_QueryInterface($pSelf, $pRIID, $pObj)
         Case Else
             Return $_Toast_E_NOINTERFACE
     EndSwitch
-EndFunc   ;==>__Toast_ITypedEventHandler_Dismissed_QueryInterface
+EndFunc
 
 Func __Toast_ITypedEventHandler_Failed_QueryInterface($pSelf, $pRIID, $pObj)
     If $pObj = 0 Then Return $_Toast_E_POINTER
@@ -483,13 +483,13 @@ Func __Toast_ITypedEventHandler_Failed_QueryInterface($pSelf, $pRIID, $pObj)
         Case Else
             Return $_Toast_E_NOINTERFACE
     EndSwitch
-EndFunc   ;==>__Toast_ITypedEventHandler_Failed_QueryInterface
+EndFunc
 
 Func __Toast_ITypedEventHandler_AddRef($pSelf)
     Local $tStruct = DllStructCreate("int Ref", $pSelf - 4)
     $tStruct.Ref += 1
     Return $tStruct.Ref
-EndFunc   ;==>__Toast_ITypedEventHandler_AddRef
+EndFunc
 
 Func __Toast_ITypedEventHandler_Release($pSelf)
     Local $tStruct = DllStructCreate("int Ref", $pSelf - 4)
@@ -505,11 +505,11 @@ Func __Toast_ITypedEventHandler_Release($pSelf)
     _MemGlobalFree($hMemory)
 
     Return 0
-EndFunc   ;==>__Toast_ITypedEventHandler_Release
+EndFunc
 
 Func __Toast_ITypedEventHandler_Invoke($pSelf, $pSender, $pArgs)
     ;
-EndFunc   ;==>__Toast_ITypedEventHandler_Invoke
+EndFunc
 
 Global Const $__Toast_tNOTIFICATION_USER_INPUT_DATA = "STRUCT;PTR Key;PTR Value;ENDSTRUCT;"
 
@@ -541,7 +541,7 @@ Func __Toast_INotificationActivationCallback($hCallback = 0)
     DllStructSetData($tObject, "object", DllStructGetPtr($tObject, "vtable"))
 
     Return DllStructGetPtr($tObject, "object")
-EndFunc   ;==>__Toast_INotificationActivationCallback
+EndFunc
 
 Func __Toast_INotificationActivationCallback_QueryInterface($pSelf, $pRIID, $pObj)
     If $pObj = 0 Then Return $_Toast_E_POINTER
@@ -558,7 +558,7 @@ Func __Toast_INotificationActivationCallback_QueryInterface($pSelf, $pRIID, $pOb
         Case Else
             Return $_Toast_E_NOINTERFACE
     EndSwitch
-EndFunc   ;==>__Toast_INotificationActivationCallback_QueryInterface
+EndFunc
 
 Func __Toast_INotificationActivationCallback_Activate($pSelf, $appUserModelId, $invokedArgs, $data, $count)
     ConsoleWrite("appUserModelId: " & $appUserModelId & @CRLF)
@@ -566,7 +566,7 @@ Func __Toast_INotificationActivationCallback_Activate($pSelf, $appUserModelId, $
     ConsoleWrite("count: " & $count & @CRLF)
 
     Return $_Toast_S_OK
-EndFunc   ;==>__Toast_INotificationActivationCallback_Activate
+EndFunc
 
 Func __Toast_CoRegisterClassObject($sAppId = @ScriptName, $tCLSID = _Toast_CoCreateGuid(), $fCallback = Null)
     _WinAPI_SetCurrentProcessExplicitAppUserModelID($sAppId)
@@ -584,14 +584,14 @@ Func __Toast_CoRegisterClassObject($sAppId = @ScriptName, $tCLSID = _Toast_CoCre
     If $aResult[0] <> 0 Then Return SetError($aResult[0], 0, 0)
 
     Return $aResult[5]
-EndFunc   ;==>__Toast_CoRegisterClassObject
+EndFunc
 
 Func __Toast_CoRevokeClassObject($dwRegister)
     Local $aResult = DllCall("Ole32.dll", "LONG", "CoRevokeClassObject", "DWORD", $dwRegister)
     If @error <> 0 Then Return SetError(@error, @extended, 0)
 
     Return $aResult[0]
-EndFunc   ;==>__Toast_CoRevokeClassObject
+EndFunc
 
 Func _Toast_CoCreateGuid()
     Local $tGUID = DllStructCreate($__tagWinAPICom_GUID)
@@ -600,7 +600,7 @@ Func _Toast_CoCreateGuid()
     If $aCall[0] Then Return SetError(10, $aCall[0], '')
 
     Return $aCall[1]
-EndFunc   ;==>_Toast_CoCreateGuid
+EndFunc
 
 Func __Toast_IClassFactory($fCallback = Null)
     Local Static $hQueryInterface = DllCallbackRegister(__Toast_IClassFactory_QueryInterface, "LONG", "ptr;ptr;ptr")
@@ -635,7 +635,7 @@ Func __Toast_IClassFactory($fCallback = Null)
     DllStructSetData($tObject, "object", DllStructGetPtr($tObject, "vtable"))
 
     Return DllStructGetPtr($tObject, "object")
-EndFunc   ;==>__Toast_IClassFactory
+EndFunc
 
 Func __Toast_IClassFactory_Release($pSelf)
     Local $tStruct = DllStructCreate("int Ref", $pSelf - 4)
@@ -650,7 +650,7 @@ Func __Toast_IClassFactory_Release($pSelf)
     _MemGlobalFree($hMemory)
 
     Return 0
-EndFunc   ;==>__Toast_IClassFactory_Release
+EndFunc
 
 Func __Toast_IClassFactory_QueryInterface($pSelf, $pRIID, $pObj)
     If $pObj = 0 Then Return $_Toast_E_POINTER
@@ -667,7 +667,7 @@ Func __Toast_IClassFactory_QueryInterface($pSelf, $pRIID, $pObj)
         Case Else
             Return $_Toast_E_NOINTERFACE
     EndSwitch
-EndFunc   ;==>__Toast_IClassFactory_QueryInterface
+EndFunc
 
 Func __Toast_IClassFactory_CreateInstance($pSelf, $pUnkOuter, $pRIID, $ppvObject)
     Local $sGUID = _WinAPI_StringFromGUID($pRIID)
@@ -683,11 +683,11 @@ Func __Toast_IClassFactory_CreateInstance($pSelf, $pUnkOuter, $pRIID, $ppvObject
     EndSwitch
 
     Return $_Toast_E_NOINTERFACE
-EndFunc   ;==>__Toast_IClassFactory_CreateInstance
+EndFunc
 
 Func __Toast_IClassFactory_LockServer($pSelf, $fLock)
     Return $_Toast_E_FAIL
-EndFunc   ;==>__Toast_IClassFactory_LockServer
+EndFunc
 
 Global $__Toast_Activator = 0
 
@@ -722,8 +722,8 @@ Func _Toast_Initialize( _
     _WinAPI_RegCloseKey($hKey)
 
     OnAutoItExitRegister("__Toast_Terminate")
-EndFunc   ;==>_Toast_Initialize
+EndFunc
 
 Func __Toast_Terminate()
     __Toast_CoRevokeClassObject($__Toast_Activator)
-EndFunc   ;==>__Toast_Terminate
+EndFunc
