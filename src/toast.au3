@@ -6,24 +6,25 @@
 #include <WinApiReg.au3>
 #include <WinAPIConv.au3>
 
+#Tidy_Parameters=/tc=4 /refc
+
 Global Const $sIInspectable = "GetIids HRESULT(ULONG;PTR*);GetRuntimeClassName HRESULT(PTR);GetTrustLevel HRESULT(PTR);"
 
 Global Const $_Toast_S_OK = 0x0
 Global Const $_Toast_E_FAIL = 0x80004005
 Global Const $_Toast_E_NOINTERFACE = 0x80004002
 Global Const $_Toast_E_POINTER = 0x80004003
-
 ;Global $__Toast_
 
 Global Enum _
-    $_Toast_ToastTemplateType_ToastImageAndText01 = 0, _
-    $_Toast_ToastTemplateType_ToastImageAndText02 = 1, _
-    $_Toast_ToastTemplateType_ToastImageAndText03 = 2, _
-    $_Toast_ToastTemplateType_ToastImageAndText04 = 3, _
-    $_Toast_ToastTemplateType_ToastText01 = 4, _
-    $_Toast_ToastTemplateType_ToastText02 = 5, _
-    $_Toast_ToastTemplateType_ToastText03 = 6, _
-    $_Toast_ToastTemplateType_ToastText04 = 7
+        $_Toast_ToastTemplateType_ToastImageAndText01 = 0, _
+        $_Toast_ToastTemplateType_ToastImageAndText02 = 1, _
+        $_Toast_ToastTemplateType_ToastImageAndText03 = 2, _
+        $_Toast_ToastTemplateType_ToastImageAndText04 = 3, _
+        $_Toast_ToastTemplateType_ToastText01 = 4, _
+        $_Toast_ToastTemplateType_ToastText02 = 5, _
+        $_Toast_ToastTemplateType_ToastText03 = 6, _
+        $_Toast_ToastTemplateType_ToastText04 = 7
 
 Func RoGetActivationFactory($activatableClassId, $iid, ByRef $factory)
     Local $aRet = DllCall("Combase.dll", "LONG", "RoGetActivationFactory", "PTR", $activatableClassId, "PTR", $iid, "PTR*", 0)
@@ -33,15 +34,15 @@ EndFunc
 
 Func __Toast_GlobalHandle($pMem)
     Local $aRet = DllCall("Kernel32.dll", "ptr", "GlobalHandle", "ptr", $pMem)
-    If @error<>0 Then Return SetError(@error, @extended, 0)
-    If $aRet[0]=0 Then Return SetError(-1, @extended, 0)
+    If @error <> 0 Then Return SetError(@error, @extended, 0)
+    If $aRet[0] = 0 Then Return SetError(-1, @extended, 0)
     Return $aRet[0]
 EndFunc
 
 Func __Toast_WindowsCreateString($sourceString, ByRef $pStr)
     Local $aRet = DllCall("combase.dll", "LONG", "WindowsCreateString", "WSTR", $sourceString, "long", StringLen($sourceString), "PTR*", 0)
 
-    If @error<>0 Then Return SetError(@error, @extended, $aRet)
+    If @error <> 0 Then Return SetError(@error, @extended, $aRet)
 
     If $aRet[0] <> 0 Then Return SetError($aRet[0], 0, $aRet)
 
@@ -53,7 +54,7 @@ EndFunc
 Func __Toast_WindowsDeleteString(ByRef $pStr)
     Local $aRet = DllCall("combase.dll", "LONG", "WindowsDeleteString", "PTR", $pStr)
 
-    If @error<>0 Then Return SetError(@error, @extended, $aRet)
+    If @error <> 0 Then Return SetError(@error, @extended, $aRet)
 
     If $aRet[0] <> 0 Then Return SetError($aRet[0], 0, $aRet)
 
@@ -82,7 +83,7 @@ Func __Toast_ToastNotificationManager()
     EndIf
 
     $hr = RoGetActivationFactory($classId, $hUUID_IToastNotificationManagerStatics, $hToastNotificationManager)
-    if $hr <> 0 Then
+    If $hr <> 0 Then
         __Toast_WindowsDeleteString($classId)
         Return SetError($hr)
     EndIf
@@ -225,19 +226,19 @@ Func _Toast_CreateToastNotificationFromXmlObject($oXml)
     Local Static $sIToastNotificationFactory = $sIInspectable & "CreateToastNotification HRESULT(ptr;ptr*);"
     Local $classId = "Windows.UI.Notifications.ToastNotification"
     $hr = __Toast_WindowsCreateString($classId, $classId)
-    if $hr <> 0 Then
+    If $hr <> 0 Then
         Return SetError($hr)
     EndIf
 
     Local $hIToastNotificationFactory = 0
     $hr = RoGetActivationFactory($classId, $hIID_IToastNotificationFactory, $hIToastNotificationFactory)
-    if $hr <> 0 Then
+    If $hr <> 0 Then
         __Toast_WindowsDeleteString($classId)
         Return SetError($hr)
     EndIf
 
     __Toast_WindowsDeleteString($classId)
-    
+
     Local $oIToastNotificationFactory = ObjCreateInterface($hIToastNotificationFactory, $IID_IToastNotificationFactory, $sIToastNotificationFactory)
     If @error <> 0 Then
         __Toast_IUnknown_Release($hIToastNotificationFactory)
@@ -250,7 +251,7 @@ Func _Toast_CreateToastNotificationFromXmlObject($oXml)
 
     __Toast_IUnknown_Release($hIToastNotificationFactory)
 
-    return $pToastNotification
+    Return $pToastNotification
 EndFunc
 
 Func _Toast_CreateToastNotificationFromXmlString($sXml)
@@ -356,19 +357,19 @@ Func __Toast_ToastNotificationFactory()
     Local Static $sIToastNotificationFactory = $sIInspectable & "CreateToastNotification HRESULT(ptr;ptr*);"
     Local $classId = "Windows.UI.Notifications.ToastNotification"
     $hr = __Toast_WindowsCreateString($classId, $classId)
-    if $hr <> 0 Then
+    If $hr <> 0 Then
         Return SetError($hr)
     EndIf
 
     Local $hIToastNotificationFactory = 0
     $hr = RoGetActivationFactory($classId, $hIID_IToastNotificationFactory, $hIToastNotificationFactory)
-    if $hr <> 0 Then
+    If $hr <> 0 Then
         __Toast_WindowsDeleteString($classId)
         Return SetError($hr)
     EndIf
 
     __Toast_WindowsDeleteString($classId)
-    
+
     Local $oIToastNotificationFactory = ObjCreateInterface($hIToastNotificationFactory, $IID_IToastNotificationFactory, $sIToastNotificationFactory)
     If @error <> 0 Then
         __Toast_IUnknown_Release($hIToastNotificationFactory)
@@ -434,53 +435,53 @@ Func __Toast_ITypedEventHandler($fCallback, $pQueryInterface)
 EndFunc
 
 Func __Toast_ITypedEventHandler_Activated_QueryInterface($pSelf, $pRIID, $pObj)
-    If $pObj=0 Then Return $_Toast_E_POINTER
+    If $pObj = 0 Then Return $_Toast_E_POINTER
 
     Local $sGUID = _WinAPI_StringFromGUID($pRIID)
 
     Switch $sGUID
-        Case '{00000000-0000-0000-C000-000000000046}' _; IID_IUnknown
-        , '{AB54DE2D-97D9-5528-B6AD-105AFE156530}'; ITypedEventHandler<ABI::Windows::UI::Notifications::ToastNotification*,IInspectable*>
+        Case '{00000000-0000-0000-C000-000000000046}' _ ; IID_IUnknown
+                , '{AB54DE2D-97D9-5528-B6AD-105AFE156530}' ; ITypedEventHandler<ABI::Windows::UI::Notifications::ToastNotification*,IInspectable*>
             Local $tStruct = DllStructCreate("ptr", $pObj)
             DllStructSetData($tStruct, 1, $pSelf)
             __Toast_ITypedEventHandler_AddRef($pSelf)
             Return $_Toast_S_OK
         Case Else
-            return $_Toast_E_NOINTERFACE
+            Return $_Toast_E_NOINTERFACE
     EndSwitch
 EndFunc
 
 Func __Toast_ITypedEventHandler_Dismissed_QueryInterface($pSelf, $pRIID, $pObj)
-    If $pObj=0 Then Return $_Toast_E_POINTER
+    If $pObj = 0 Then Return $_Toast_E_POINTER
 
     Local $sGUID = _WinAPI_StringFromGUID($pRIID)
 
     Switch $sGUID
-        Case '{00000000-0000-0000-C000-000000000046}' _; IID_IUnknown
-        , '{61C2402F-0ED0-5A18-AB69-59F4AA99A368}'; ITypedEventHandler<ABI::Windows::UI::Notifications::ToastNotification*,ABI::Windows::UI::Notifications::ToastDismissedEventArgs*>
+        Case '{00000000-0000-0000-C000-000000000046}' _ ; IID_IUnknown
+                , '{61C2402F-0ED0-5A18-AB69-59F4AA99A368}' ; ITypedEventHandler<ABI::Windows::UI::Notifications::ToastNotification*,ABI::Windows::UI::Notifications::ToastDismissedEventArgs*>
             Local $tStruct = DllStructCreate("ptr", $pObj)
             DllStructSetData($tStruct, 1, $pSelf)
             __Toast_ITypedEventHandler_AddRef($pSelf)
             Return $_Toast_S_OK
         Case Else
-            return $_Toast_E_NOINTERFACE
+            Return $_Toast_E_NOINTERFACE
     EndSwitch
 EndFunc
 
 Func __Toast_ITypedEventHandler_Failed_QueryInterface($pSelf, $pRIID, $pObj)
-    If $pObj=0 Then Return $_Toast_E_POINTER
+    If $pObj = 0 Then Return $_Toast_E_POINTER
 
     Local $sGUID = _WinAPI_StringFromGUID($pRIID)
 
     Switch $sGUID
-        Case '{00000000-0000-0000-C000-000000000046}' _; IID_IUnknown
-        , '{95E3E803-C969-5E3A-9753-EA2AD22A9A33}'; ITypedEventHandler<ABI::Windows::UI::Notifications::ToastNotification*,ABI::Windows::UI::Notifications::ToastFailedEventArgs*>
+        Case '{00000000-0000-0000-C000-000000000046}' _ ; IID_IUnknown
+                , '{95E3E803-C969-5E3A-9753-EA2AD22A9A33}' ; ITypedEventHandler<ABI::Windows::UI::Notifications::ToastNotification*,ABI::Windows::UI::Notifications::ToastFailedEventArgs*>
             Local $tStruct = DllStructCreate("ptr", $pObj)
             DllStructSetData($tStruct, 1, $pSelf)
             __Toast_ITypedEventHandler_AddRef($pSelf)
             Return $_Toast_S_OK
         Case Else
-            return $_Toast_E_NOINTERFACE
+            Return $_Toast_E_NOINTERFACE
     EndSwitch
 EndFunc
 
@@ -543,32 +544,32 @@ Func __Toast_INotificationActivationCallback($hCallback = 0)
 EndFunc
 
 Func __Toast_INotificationActivationCallback_QueryInterface($pSelf, $pRIID, $pObj)
-    If $pObj=0 Then Return $_Toast_E_POINTER
+    If $pObj = 0 Then Return $_Toast_E_POINTER
 
     Local $sGUID = _WinAPI_StringFromGUID($pRIID)
 
     Switch $sGUID
-        Case '{00000000-0000-0000-C000-000000000046}' _; IID_IUnknown
-        , '{53E31837-6600-4A81-9395-75CFFE746F94}'; INotificationActivationCallback
+        Case '{00000000-0000-0000-C000-000000000046}' _ ; IID_IUnknown
+                , '{53E31837-6600-4A81-9395-75CFFE746F94}' ; INotificationActivationCallback
             Local $tStruct = DllStructCreate("ptr", $pObj)
             DllStructSetData($tStruct, 1, $pSelf)
             __Toast_ITypedEventHandler_AddRef($pSelf)
             Return $_Toast_S_OK
         Case Else
-            return $_Toast_E_NOINTERFACE
+            Return $_Toast_E_NOINTERFACE
     EndSwitch
 EndFunc
 
 Func __Toast_INotificationActivationCallback_Activate($pSelf, $appUserModelId, $invokedArgs, $data, $count)
-    ConsoleWrite("appUserModelId: "&$appUserModelId&@CRLF)
-    ConsoleWrite("invokedArgs: "&$invokedArgs&@CRLF)
-    ConsoleWrite("count: "&$count&@CRLF)
+    ConsoleWrite("appUserModelId: " & $appUserModelId & @CRLF)
+    ConsoleWrite("invokedArgs: " & $invokedArgs & @CRLF)
+    ConsoleWrite("count: " & $count & @CRLF)
 
     Return $_Toast_S_OK
 EndFunc
 
-Func __Toast_CoRegisterClassObject($sAppID = @ScriptName, $tCLSID = _Toast_CoCreateGuid(), $fCallback = Null)
-    _WinAPI_SetCurrentProcessExplicitAppUserModelID($sAppID)
+Func __Toast_CoRegisterClassObject($sAppId = @ScriptName, $tCLSID = _Toast_CoCreateGuid(), $fCallback = Null)
+    _WinAPI_SetCurrentProcessExplicitAppUserModelID($sAppId)
 
     $pCLSID = DllStructGetPtr($tCLSID)
 
@@ -611,7 +612,7 @@ Func __Toast_IClassFactory($fCallback = Null)
     Local Static $hCreateInstance = DllCallbackRegister(__Toast_IClassFactory_CreateInstance, "LONG", "PTR;PTR;PTR;PTR")
     Local Static $pCreateInstance = DllCallbackGetPtr($hCreateInstance)
     Local Static $hLockServer = DllCallbackRegister(__Toast_IClassFactory_LockServer, "LONG", "BOOLEAN")
-    Local static $pLockServer = DllCallbackGetPtr($hLockServer)
+    Local Static $pLockServer = DllCallbackGetPtr($hLockServer)
 
     Local $tObject = DllStructCreate("int refcount;ptr object;ptr vtable[5];ptr callback;")
     DllStructSetData($tObject, "refcount", 1)
@@ -652,19 +653,19 @@ Func __Toast_IClassFactory_Release($pSelf)
 EndFunc
 
 Func __Toast_IClassFactory_QueryInterface($pSelf, $pRIID, $pObj)
-    If $pObj=0 Then Return $_Toast_E_POINTER
+    If $pObj = 0 Then Return $_Toast_E_POINTER
 
     Local $sGUID = _WinAPI_StringFromGUID($pRIID)
 
     Switch $sGUID
-        Case '{00000000-0000-0000-C000-000000000046}', _; IID_IUnknown
-            '{00000001-0000-0000-C000-000000000046}' ; IClassFactory
+        Case '{00000000-0000-0000-C000-000000000046}', _ ; IID_IUnknown
+                '{00000001-0000-0000-C000-000000000046}' ; IClassFactory
             Local $tStruct = DllStructCreate("ptr", $pObj)
             DllStructSetData($tStruct, 1, $pSelf)
             __Toast_ITypedEventHandler_AddRef($pSelf)
             Return $_Toast_S_OK
         Case Else
-            return $_Toast_E_NOINTERFACE
+            Return $_Toast_E_NOINTERFACE
     EndSwitch
 EndFunc
 
@@ -681,7 +682,7 @@ Func __Toast_IClassFactory_CreateInstance($pSelf, $pUnkOuter, $pRIID, $ppvObject
             Return $_Toast_S_OK
     EndSwitch
 
-    return $_Toast_E_NOINTERFACE
+    Return $_Toast_E_NOINTERFACE
 EndFunc
 
 Func __Toast_IClassFactory_LockServer($pSelf, $fLock)
@@ -691,12 +692,12 @@ EndFunc
 Global $__Toast_Activator = 0
 
 Func _Toast_Initialize( _
-    $sAppName = @ScriptName, _
-    $tCLSID = _Toast_CoCreateGuid(), _
-    $fCallback = Null, _
-    $sDisplayName = $sAppName, _
-    $sIconUri = Null _
-)
+        $sAppName = @ScriptName, _
+        $tCLSID = _Toast_CoCreateGuid(), _
+        $fCallback = Null, _
+        $sDisplayName = $sAppName, _
+        $sIconUri = Null _
+        )
     $__Toast_Activator = __Toast_CoRegisterClassObject($sAppName, $tCLSID, $fCallback)
 
     Local $hKey = _WinAPI_RegCreateKey($HKEY_CURRENT_USER, "Software\Classes\AppUserModelId\" & $sAppName, $KEY_ALL_ACCESS, $REG_OPTION_VOLATILE)
