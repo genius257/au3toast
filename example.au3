@@ -1,4 +1,4 @@
-#Tidy_Parameters=/tc=4 /refc
+#Tidy_Parameters=/tc=4 /refc /ci=1
 
 #include "./src/toast.au3"
 #include <GuiRichEdit.au3>
@@ -33,10 +33,10 @@ _Toast_Initialize($sAppName, $tCLSID, OnToastActivation, "AutoIt Toast Example",
 ; https://learn.microsoft.com/en-us/windows/win32/api/notificationactivationcallback/nf-notificationactivationcallback-inotificationactivationcallback-activate
 Func OnToastActivation($pSelf, $appUserModelId, $invokedArgs, $data, $count)
     _GUICtrlRichEdit_AppendText($hRich, _
-            "Toast activated!" & @CRLF _
-            & "    " & "appUserModelId: " & $appUserModelId & @CRLF _
-            & "    " & "invokedArgs: " & $invokedArgs & @CRLF _
-            )
+        "Toast activated!" & @CRLF _
+        & "    " & "appUserModelId: " & $appUserModelId & @CRLF _
+        & "    " & "invokedArgs: " & $invokedArgs & @CRLF _
+        )
 
     Return $_Toast_S_OK
 EndFunc
@@ -85,28 +85,28 @@ Func ToastFromXmlString()
 
     ; https://learn.microsoft.com/en-us/windows/apps/design/shell/tiles-and-notifications/adaptive-interactive-toasts?tabs=xml
     Local $sToast = _
-            '<toast scenario="reminder" activationType="background" launch="action=mainContent" duration="short" useButtonStyle="true">' & _
-            '  <visual>' & _
-            '    <binding template="ToastGeneric">' & _
-            '      <text>Sample toast</text>' & _
-            '      <text>Sample content</text>' & _
-            '      <image placement="appLogoOverride" src="file://' & @TempDir & '\e21cd29c9fb51c3a5b82f009ec33fc997d2edd1ece931e8568f37e205c445778.jpeg" hint-crop="circle"/>' & _
-            '    </binding>' & _
-            '  </visual>' & _
-            '  <actions>' & _
-            '    <action' & _
-            '      content="Click me"' & _
-            '      activationType="background"' & _
-            '      hint-buttonStyle="Success"' & _
-            _ ;'      afterActivationBehavior="pendingUpdate"' & _
-            '      arguments="action=click_me"/>' & _
-            '    <action' & _
-            '      content="Dismiss"' & _
-            '      activationType="system"' & _
-            '      hint-buttonStyle="Critical"' & _
-            '      arguments="dismiss"/>' & _
-            '  </actions>' & _
-            "</toast>"
+        '<toast scenario="reminder" activationType="background" launch="action=mainContent" duration="short" useButtonStyle="true">' & _
+        '  <visual>' & _
+        '    <binding template="ToastGeneric">' & _
+        '      <text>Sample toast</text>' & _
+        '      <text>Sample content</text>' & _
+        '      <image placement="appLogoOverride" src="file://' & @TempDir & '\e21cd29c9fb51c3a5b82f009ec33fc997d2edd1ece931e8568f37e205c445778.jpeg" hint-crop="circle"/>' & _
+        '    </binding>' & _
+        '  </visual>' & _
+        '  <actions>' & _
+        '    <action' & _
+        '      content="Click me"' & _
+        '      activationType="background"' & _
+        '      hint-buttonStyle="Success"' & _
+        _     ;'      afterActivationBehavior="pendingUpdate"' & _
+        '      arguments="action=click_me"/>' & _
+        '    <action' & _
+        '      content="Dismiss"' & _
+        '      activationType="system"' & _
+        '      hint-buttonStyle="Critical"' & _
+        '      arguments="dismiss"/>' & _
+        '  </actions>' & _
+        "</toast>"
 
     Local $pToast = _Toast_CreateToastNotificationFromXmlString($sToast)
 
