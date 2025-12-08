@@ -51,6 +51,7 @@ Func CreateToast()
         '        value="0.5"' & _
         '        _valueStringOverride="15/26 songs"' & _
         '        status="Downloading..."' & _
+        '        binding="progress1"' & _
         '      />' & _
         '    </binding>' & _
         '  </visual>' & _
@@ -114,7 +115,7 @@ Func UpdateProgress()
 
     Local $pInsert = __Toast_VTable_get($pValues, 4)
     Local $pReplaced = 0
-    Local $pKey = "value"
+    Local $pKey = "progress1"
     $hr = __Toast_WindowsCreateString($pKey, $pKey)
     If $hr <> 0 Then
         Return SetError($hr)
