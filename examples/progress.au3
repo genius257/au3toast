@@ -130,7 +130,14 @@ Func UpdateProgress()
     __Toast_WindowsDeleteString($pValue)
     $oNotificationData.SetSequenceNumber(1)
 
-    ; FIXME: apply new notificationData to the existing toast
+    Local $pTag = "demo-tag"
+    __Toast_WindowsCreateString($pTag, $pTag)
+    Local $pGroup = "demo-group"
+    __Toast_WindowsCreateString($pGroup, $pGroup)
+    Local $pResult = 0
+    $hr = $oToastNotifier2.UpdateWithTagAndGroup($pNotificationData, $pTag, $pGroup, $pResult)
+    __Toast_WindowsDeleteString($pTag)
+    __Toast_WindowsDeleteString($pGroup)
 EndFunc
 
 Func CreateNotificationData()
