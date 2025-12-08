@@ -117,6 +117,8 @@ Func CreateNotificationData()
 
     If $hr <> 0 Then Return SetError($hr)
 
+    Local Static $UIID_IXmlDocument = "{f7f3a506-1e87-42d6-bcfb-b8c809fa5494}"
+
     Local $pINotificationData = 0
     $hr = __Toast_QueryInterface($pInspectable, $UIID_IXmlDocument, $pINotificationData)
 
