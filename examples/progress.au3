@@ -75,6 +75,28 @@ Func CreateToast()
         Return
     EndIf
 
+    Local $pIToastNotification2 = 0
+    $hr = __Toast_QueryInterface($pToast, "{9DFB9FD1-143A-490E-90BF-B9FBA7132DE7}", $pIToastNotification2)
+
+    If @error <> 0 Or $hr <> 0 Then
+        _GUICtrlRichEdit_AppendText(StringFormat("Failed to get IToastNotification2 COM interface!\n\t@error: %s\n\tHRESULT: %s\n", @error, $hr))
+    Else
+        Local $aRet = Null
+        Local $pTag = "demo-tag"
+        $hr = __Toast_WindowsCreateString($pTag, $pTag)
+        $pSetTag = __Toast_VTable_get($pIToastNotification2, 6)
+        $aRet = DllCallAddress("HRESULT", $pSetTag, "PTR", $pTag)
+        __Toast_WindowsDeleteString($pTag)
+
+        Local $pGroup = "demo-group"
+        $hr = __Toast_WindowsCreateString($pGroup, $pGroup)
+        $pSetGroup = __Toast_VTable_get($pIToastNotification2, 8)
+        DllCallAddress("HRESULT", $pSetGroup, "PTR", $pGroup)
+        __Toast_WindowsDeleteString($pGroup)
+
+        __Toast_IUnknown_Release($pIToastNotification2)
+    EndIf
+
     _Toast_Show($pToast)
 EndFunc
 
