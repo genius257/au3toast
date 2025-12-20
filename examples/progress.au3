@@ -171,3 +171,7 @@ Func __Toast_VTable_get($pInterface, $iMethod)
     
     Return DllStructGetData(DllStructCreate("ptr", $pVTable + $methodOffset), 1)
 EndFunc
+
+Func GUI_CLOSE()
+    Exit
+EndFunc
