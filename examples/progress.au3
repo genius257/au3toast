@@ -1,5 +1,6 @@
 #include "../src/toast.au3"
 #include <GuiRichEdit.au3>
+#include <GUIConstantsEx.au3>
 
 Global Const $sAppName = @ScriptName
 Global $tCLSID = _Toast_CoCreateGuid()
