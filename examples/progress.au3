@@ -105,9 +105,12 @@ EndFunc
 Func UpdateProgress()
     Local $oToastNotificationManager = __Toast_ToastNotificationManager()
     Local $pToastNotifier = 0
-    Local $hr = $oToastNotificationManager.CreateToastNotifier($pToastNotifier)
-    Local $oToastNotifier2 = ObjCreateInterface($pToastNotifier, "{354389C6-7C01-4BD5-9C20-604340CD2B74}", $sIInspectable & "UpdateWithTagAndGroup HRESULT(PTR;PTR;PTR;PTR);UpdateWithTag HRESULT(PTR;PTR;PTR)")
-    
+    Local $sAppId = @ScriptName
+    Local $hr = __Toast_WindowsCreateString($sAppId, $sAppId)
+    If $hr <> 0 Then
+        Return SetError($hr)
+    EndIf
+    Local $hr = $oToastNotificationManager.CreateToastNotifierWithId($sAppId, $pToastNotifier)
     Local $pNotificationData = CreateNotificationData()
     Local $oNotificationData = ObjCreateInterface($pNotificationData, "{9FFD2312-9D6A-4AAF-B6AC-FF17F0C1F280}", $sIInspectable & "Values HRESULT(PTR*);SequenceNumber HRESULT(UINT*);SetSequenceNumber HRESULT(UINT);")
 
