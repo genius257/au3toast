@@ -146,16 +146,21 @@ EndFunc
 
 Func CreateNotificationData()
     Local $classId = "Windows.UI.Notifications.NotificationData"
+    Local $hr = __Toast_WindowsCreateString($classId, $classId)
+    If @error <> 0 Then Return SetError(@error)
+
     Local $pInspectable = 0
 
-    Local $hr = RoActivateInstance($classId, $pInspectable)
+    Local Static $IID_INotificationDataFactory = "{23c1e33a-1c10-46fb-8040-dec384621cf8}"
+
+    $hr = RoGetActivationFactory($classId, $IID_INotificationDataFactory, $pInspectable)
+
+    __Toast_WindowsDeleteString($classId)
 
     If $hr <> 0 Then Return SetError($hr)
 
-    Local Static $UIID_IXmlDocument = "{f7f3a506-1e87-42d6-bcfb-b8c809fa5494}"
-
-    Local $pINotificationData = 0
-    $hr = __Toast_QueryInterface($pInspectable, $UIID_IXmlDocument, $pINotificationData)
+    Local $pINotificationDataFactory = 0
+    $hr = __Toast_QueryInterface($pInspectable, $IID_INotificationDataFactory, $pINotificationDataFactory)
 
     If @error <> 0 Then
         Local $error = @error, $extended = @extended
@@ -165,7 +170,17 @@ Func CreateNotificationData()
 
     __Toast_IUnknown_Release($pInspectable)
 
-    Return $pINotificationData
+    Local $pCreateNotificationDataWithValuesAndSequenceNumber = __Toast_VTable_get($pINotificationDataFactory, 6)
+
+    Local $aRet = DllCallAddress("LONG", $pCreateNotificationDataWithValuesAndSequenceNumber, "PTR", $pINotificationDataFactory, "PTR", 0, "UINT", 0, "PTR*", 0)
+    If $aRet[0] <> 0 Then
+        __Toast_IUnknown_Release($pINotificationDataFactory)
+        Return SetError($hr, 0, 0)
+    EndIf
+
+    __Toast_IUnknown_Release($pINotificationDataFactory)
+
+    Return $aRet[4]
 EndFunc
 
 Func __Toast_VTable_get($pInterface, $iMethod)
