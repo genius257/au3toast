@@ -139,8 +139,9 @@ Func UpdateProgress()
     __Toast_WindowsCreateString($pTag, $pTag)
     Local $pGroup = "demo-group"
     __Toast_WindowsCreateString($pGroup, $pGroup)
-    Local $pResult = 0
-    $hr = $oToastNotifier2.UpdateWithTagAndGroup($pNotificationData, $pTag, $pGroup, $pResult)
+    Local $iNotificationUpdateResult = 0
+
+    $hr = $oToastNotifier2.UpdateWithTagAndGroup($pNotificationData, $pTag, $pGroup, $iNotificationUpdateResult)
     __Toast_WindowsDeleteString($pTag)
     __Toast_WindowsDeleteString($pGroup)
 EndFunc
