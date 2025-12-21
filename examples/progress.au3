@@ -111,9 +111,24 @@ Func UpdateProgress()
         Return SetError($hr)
     EndIf
     Local $hr = $oToastNotificationManager.CreateToastNotifierWithId($sAppId, $pToastNotifier)
+    If Not ($hr = 0) Then
+        Return SetError($hr)
+    EndIf
+
     Local $oToastNotifier2 = ObjCreateInterface($pToastNotifier, "{354389C6-7C01-4BD5-9C20-604340CD2B74}", $sIInspectable & "UpdateWithTagAndGroup HRESULT(PTR;PTR;PTR;PTR*);UpdateWithTag HRESULT(PTR;PTR;PTR*)")
+    If @error Then
+        Return SetError(@error)
+    EndIf
+
     Local $pNotificationData = CreateNotificationData()
+    If @error <> 0 Then
+        Return SetError(@error)
+    EndIf
+
     Local $oNotificationData = ObjCreateInterface($pNotificationData, "{9FFD2312-9D6A-4AAF-B6AC-FF17F0C1F280}", $sIInspectable & "Values HRESULT(PTR*);SequenceNumber HRESULT(UINT*);SetSequenceNumber HRESULT(UINT);")
+    If @error Then
+        Return SetError(@error)
+    EndIf
 
     Local $pValues = 0
     Local $hr = $oNotificationData.Values($pValues)
@@ -142,6 +157,9 @@ Func UpdateProgress()
     Local $iNotificationUpdateResult = 0
 
     $hr = $oToastNotifier2.UpdateWithTagAndGroup($pNotificationData, $pTag, $pGroup, $iNotificationUpdateResult)
+    If $hr <> 0 Then
+        Return SetError($hr)
+    EndIf
 
     ; https://learn.microsoft.com/en-us/uwp/api/windows.ui.notifications.notificationupdateresult?view=winrt-26100
     Switch $iNotificationUpdateResult
