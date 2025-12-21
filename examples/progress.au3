@@ -49,10 +49,9 @@ Func CreateToast()
         '      <text>Sample content</text>' & _
         '      <progress' & _
         '        title="Weekly playlist"' & _
-        '        value="0.5"' & _
+        '        value="{progress1}"' & _
         '        _valueStringOverride="15/26 songs"' & _
         '        status="Downloading..."' & _
-        '        binding="progress1"' & _
         '      />' & _
         '    </binding>' & _
         '  </visual>' & _
