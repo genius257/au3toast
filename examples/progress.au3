@@ -117,7 +117,7 @@ Func UpdateProgress()
     Local $pValues = 0
     Local $hr = $oNotificationData.Values($pValues)
 
-    Local $pInsert = __Toast_VTable_get($pValues, 4)
+    Local $pInsert = __Toast_VTable_get($pValues, 10)
     Local $pReplaced = 0
     Local $pKey = "progress1"
     $hr = __Toast_WindowsCreateString($pKey, $pKey)
