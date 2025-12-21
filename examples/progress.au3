@@ -87,13 +87,13 @@ Func CreateToast()
         Local $pTag = "demo-tag"
         $hr = __Toast_WindowsCreateString($pTag, $pTag)
         $pSetTag = __Toast_VTable_get($pIToastNotification2, 6)
-        $aRet = DllCallAddress("HRESULT", $pSetTag, "PTR", $pTag)
+        $aRet = DllCallAddress("LONG", $pSetTag, "PTR", $pIToastNotification2, "PTR", $pTag)
         __Toast_WindowsDeleteString($pTag)
 
         Local $pGroup = "demo-group"
         $hr = __Toast_WindowsCreateString($pGroup, $pGroup)
         $pSetGroup = __Toast_VTable_get($pIToastNotification2, 8)
-        DllCallAddress("HRESULT", $pSetGroup, "PTR", $pGroup)
+        DllCallAddress("LONG", $pSetGroup, "PTR", $pIToastNotification2, "PTR", $pGroup)
         __Toast_WindowsDeleteString($pGroup)
 
         __Toast_IUnknown_Release($pIToastNotification2)
@@ -129,7 +129,7 @@ Func UpdateProgress()
     If $hr <> 0 Then
         Return SetError($hr)
     EndIf
-    $hr = DllCallAddress("HRESULT", $pInsert, "PTR", $pKey, "PTR", $pValue, "BOOLEAN*", $pReplaced)
+    $hr = DllCallAddress("LONG", $pInsert, "PTR", $pValues, "PTR", $pKey, "PTR", $pValue, "BOOLEAN*", 0)
     __Toast_WindowsDeleteString($pKey)
     __Toast_WindowsDeleteString($pValue)
     $oNotificationData.SetSequenceNumber(1)
