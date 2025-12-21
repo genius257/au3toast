@@ -147,7 +147,7 @@ Func UpdateProgress()
     $hr = DllCallAddress("LONG", $pInsert, "PTR", $pValues, "PTR", $pKey, "PTR", $pValue, "BOOLEAN*", 0)
     __Toast_WindowsDeleteString($pKey)
     __Toast_WindowsDeleteString($pValue)
-    $oNotificationData.SetSequenceNumber(1)
+    $oNotificationData.SetSequenceNumber(0) ; Need to be incremented (starting from 1) if the order of updates are important. 0 will apply without caring about the order.
 
     Local $pTag = "demo-tag"
     __Toast_WindowsCreateString($pTag, $pTag)
