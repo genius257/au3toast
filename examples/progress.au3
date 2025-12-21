@@ -142,6 +142,19 @@ Func UpdateProgress()
     Local $iNotificationUpdateResult = 0
 
     $hr = $oToastNotifier2.UpdateWithTagAndGroup($pNotificationData, $pTag, $pGroup, $iNotificationUpdateResult)
+
+    ; https://learn.microsoft.com/en-us/uwp/api/windows.ui.notifications.notificationupdateresult?view=winrt-26100
+    Switch $iNotificationUpdateResult
+        Case 0 ; Succeeded
+            _GUICtrlRichEdit_AppendText($hRich, "The notification was updated."&@CRLF)
+        Case 1 ; Failed
+            _GUICtrlRichEdit_AppendText($hRich, "The notification update failed."&@CRLF)
+        Case 2 ; NotificationNotFound
+            _GUICtrlRichEdit_AppendText($hRich, "The specified notification couldn't be found."&@CRLF)
+        Case Else
+            _GUICtrlRichEdit_AppendText($hRich, "Unexpected notification update result: "&$iNotificationUpdateResult&@CRLF)
+    EndSwitch
+
     __Toast_WindowsDeleteString($pTag)
     __Toast_WindowsDeleteString($pGroup)
 EndFunc
