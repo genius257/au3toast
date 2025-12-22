@@ -96,6 +96,31 @@ Func CreateToast()
         __Toast_WindowsDeleteString($pGroup)
 
         __Toast_IUnknown_Release($pIToastNotification2)
+
+        Local $pIToastNotification4 = 0
+        $hr = __Toast_QueryInterface($pToast, "{15154935-28EA-4727-88E9-C58680E2D118}", $pIToastNotification4)
+        If @error <> 0 Or $hr <> 0 Then
+            _GUICtrlRichEdit_AppendText("Failed to get IToastNotification4 COM interface! default progressbar value will not be set!"&@CRLF)
+        Else
+            $pNotificationData = CreateNotificationData()
+            Local $oNotificationData = ObjCreateInterface($pNotificationData, "{9FFD2312-9D6A-4AAF-B6AC-FF17F0C1F280}", $sIInspectable & "Values HRESULT(PTR*);SequenceNumber HRESULT(UINT*);SetSequenceNumber HRESULT(UINT);")
+            Local $pValues = 0
+            Local $hr = $oNotificationData.Values($pValues)
+
+            Local $pInsert = __Toast_VTable_get($pValues, 10)
+            Local $pReplaced = 0
+            Local $pKey = "progress1"
+            $hr = __Toast_WindowsCreateString($pKey, $pKey)
+            Local $pValue = "0.5"
+            ;$pValue = "indeterminate"
+            $hr = __Toast_WindowsCreateString($pValue, $pValue)
+            $hr = DllCallAddress("LONG", $pInsert, "PTR", $pValues, "PTR", $pKey, "PTR", $pValue, "BOOLEAN*", 0)
+            __Toast_WindowsDeleteString($pKey)
+            __Toast_WindowsDeleteString($pValue)
+
+            $pSetData = __Toast_VTable_get($pIToastNotification4, 7)
+            DllCallAddress("LONG", $pSetData, "PTR", $pIToastNotification4, "PTR", $pNotificationData)
+        EndIf
     EndIf
 
     _Toast_Show($pToast)
