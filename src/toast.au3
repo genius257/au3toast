@@ -27,7 +27,8 @@ Global Enum _
     $_Toast_ToastTemplateType_ToastText04 = 7
 
 Func RoGetActivationFactory($activatableClassId, $iid, ByRef $factory)
-    Local $aRet = DllCall("Combase.dll", "LONG", "RoGetActivationFactory", "PTR", $activatableClassId, "PTR", $iid, "PTR*", 0)
+    If IsString($iid) Then $iid = _WinAPI_GUIDFromString($iid)
+    Local $aRet = DllCall("Combase.dll", "LONG", "RoGetActivationFactory", "PTR", $activatableClassId, "struct*", $iid, "PTR*", 0)
     $factory = $aRet[3]
     Return $aRet[0]
 EndFunc
