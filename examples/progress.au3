@@ -120,10 +120,13 @@ Func CreateToast()
 
             $pSetData = __Toast_VTable_get($pIToastNotification4, 7)
             DllCallAddress("LONG", $pSetData, "PTR", $pIToastNotification4, "PTR", $pNotificationData)
+            __Toast_IUnknown_Release($pIToastNotification4)
         EndIf
     EndIf
 
     _Toast_Show($pToast)
+
+    __Toast_IUnknown_Release($pToast)
 EndFunc
 
 Func UpdateProgress()
@@ -199,6 +202,10 @@ Func UpdateProgress()
 
     __Toast_WindowsDeleteString($pTag)
     __Toast_WindowsDeleteString($pGroup)
+
+    __Toast_IUnknown_Release($pValues)
+    __Toast_IUnknown_Release($pNotificationData)
+    __Toast_IUnknown_Release($pToastNotifier)
 EndFunc
 
 Func CreateNotificationData()
